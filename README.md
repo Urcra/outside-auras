@@ -13,7 +13,7 @@ By reading the combatlog that wow saves to the disk, over the years the delay be
 
 ## Showcase
 
-See the video at https://www.youtube.com/watch?v=AEr2ogDzGzI heroic neltharion. The "last delay" shows the delay between our reads of the logfiles. Under this you will see the Volcanic Heart aura pop up, happens first time at 00:19. Note that there is almost no perceptible delay between the outside aura and the actual game.
+See the video at https://youtu.be/VvQ7O4N8rtk heroic neltharion. The "last delay" shows the delay between our reads of the logfiles. Under this you will see the Volcanic Heart aura pop up, happens first time at 00:19. Note that there is almost no perceptible delay between the outside aura and the actual game.
 
 Again this is just a showcase I hope no-one uses this for actual progression
 
