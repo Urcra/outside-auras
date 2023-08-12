@@ -2,6 +2,8 @@
 
 Proof of concept for wow overlays using live log data
 
+![Showcaseimg](https://i.imgur.com/wEOlkJp.png)
+
 ## Why
 
 Personally I have known this was possible for a long time, but actually thought the delay would have been too bad. But after seeing that WarcraftLogs was going to do an overlay using the logdata(https://twitter.com/WarcraftLogs/status/1686485331346948098). And testing what the delay actually was in a raid group. I felt I needed to shed some light on the potential road we are heading towards
