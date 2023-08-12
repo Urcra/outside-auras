@@ -11,6 +11,12 @@ Personally I have known this was possible for a long time, but actually thought 
 
 By reading the combatlog that wow saves to the disk, over the years the delay between the writes have gone down. And now in a 20 player raid we are looking at an average delay of 300ms from the ingame event to seeing it on the disk, which make it almost imperceptible. 
 
+## Showcase
+
+See the video at https://www.youtube.com/watch?v=AEr2ogDzGzI heroic neltharion. The "last delay" shows the delay between our reads of the logfiles. Under this you will see the Volcanic Heart aura pop up, happens first time at 00:19. Note that there is almost no perceptible delay between the outside aura and the actual game.
+
+Again this is just a showcase I hope no-one uses this for actual progression
+
 ## Consequences
 
 The combatlog that's written to the disk contains a lot of information that's not normally available to ingame addons/weakauras due to them being abused over they years. Some notable examples are private auras(as I'm showcasing with the neltharion aura), player positions(example of an old aura that could be possible again: https://youtu.be/Vx6ipbVOWvY?t=220). In general just take a look at the replay feature from WarcraftLogs, and then imagine it running as an overlay with 300 ms delay.
