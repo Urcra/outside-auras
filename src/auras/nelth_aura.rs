@@ -15,6 +15,7 @@ use super::{list_aura::ListAura, AuraBackground, AuraIcon, AuraItem, AuraText};
 pub struct NelthAura {
     shared_state: Arc<Mutex<NelthSharedState>>,
     icon: TextureHandle,
+    player_list: Vec<String>,
 }
 
 struct NelthSharedState {
@@ -60,7 +61,8 @@ impl ListAura for NelthAura {
             height: 56.0,
         };
 
-        let hearts = &self.shared_state.lock().volanic_hearts;
+        let mut hearts = self.shared_state.lock().volanic_hearts.clone();
+        hearts.sort_by_key(|v| self.player_list.iter().position(|p| p == v).unwrap_or(0));
         for (i, player_name) in hearts.iter().enumerate() {
             let icon_text = AuraText {
                 content: (i + 1).to_string(),
@@ -93,9 +95,13 @@ impl ListAura for NelthAura {
 }
 
 impl NelthAura {
-    pub fn new(cc: &eframe::CreationContext<'_>, log_receiver: Receiver<String>) -> Self {
+    pub fn new(
+        cc: &eframe::CreationContext<'_>,
+        log_receiver: Receiver<String>,
+        player_list: Vec<String>,
+    ) -> Self {
         let ctx = cc.egui_ctx.clone();
-        let image = load_image_from_path("inv_wildfirebomb_blood.jpg").unwrap();
+        let image = load_image_from_path("res/inv_wildfirebomb_blood.jpg").unwrap();
         let icon = ctx.load_texture("volcanic-heartbeat", image, Default::default());
         let shared_state = Arc::new(Mutex::new(NelthSharedState {
             volanic_hearts: vec![],
@@ -109,7 +115,36 @@ impl NelthAura {
             }
         });
 
-        Self { shared_state, icon }
+        Self {
+            shared_state,
+            icon,
+            player_list,
+        }
+    }
+
+    pub fn spawn(log_receiver: Receiver<String>, player_list: String) {
+        let options = eframe::NativeOptions {
+            // 527.0, 454.0
+            initial_window_size: Some(egui::vec2(127.0, 154.0)),
+            decorated: false,
+            always_on_top: true,
+            mouse_passthrough: false,
+            transparent: false,
+            ..Default::default()
+        };
+        let mut player_list_fixed = Vec::new();
+        for player in player_list.lines() {
+            let player = player.trim().to_string();
+            if !player.is_empty() {
+                player_list_fixed.push(player);
+            }
+        }
+        eframe::run_native(
+            "Outside Auras",
+            options,
+            Box::new(|cc| Box::new(NelthAura::new(cc, log_receiver, player_list_fixed))),
+        )
+        .unwrap();
     }
 
     fn handle_log_line(state: &Arc<Mutex<NelthSharedState>>, line: &str) {
@@ -122,6 +157,7 @@ impl NelthAura {
 
         match event_type {
             "ENCOUNTER_START" | "ENCOUNTER_END" => {
+                println!("Hey");
                 state.lock().volanic_hearts.clear();
             }
             "SPELL_AURA_APPLIED" => {
@@ -136,6 +172,7 @@ impl NelthAura {
                 let _ = csv.next().unwrap();
                 let spell_name = csv.next().unwrap();
                 if spell_name == "\"Volcanic Heartbeat\"" {
+                    println!("Heyo");
                     let name = target_name.split_once("-").unwrap().0[1..].to_string();
                     state.lock().volanic_hearts.push(name);
                     state.lock().ctx.request_repaint();
@@ -153,6 +190,7 @@ impl NelthAura {
                 let _ = csv.next().unwrap();
                 let spell_name = csv.next().unwrap();
                 if spell_name == "\"Volcanic Heartbeat\"" {
+                    println!("Heya");
                     let name = &target_name.split_once("-").unwrap().0[1..].to_string();
                     state.lock().volanic_hearts.retain(|e| e != name);
                     state.lock().ctx.request_repaint();

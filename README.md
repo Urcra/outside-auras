@@ -46,3 +46,20 @@ Showing is better than telling and creating this is trivial. It's literally just
 ## I don't trust your exe how can I build it myself
 
 Good never trust random strangers, install cargo pull the repo `cargo build`. If the window is invisible you might have to apply the bug fix manually from https://github.com/emilk/egui/issues/2537
+
+
+### Extra patch
+```rust
+fn create_event_loop_builder(
+    native_options: &mut epi::NativeOptions,
+) -> EventLoopBuilder<UserEvent> {
+    let mut event_loop_builder = winit::event_loop::EventLoopBuilder::with_user_event();
++++ event_loop_builder.with_any_thread(true);
+
+    if let Some(hook) = std::mem::take(&mut native_options.event_loop_builder) {
+        hook(&mut event_loop_builder);
+    }
+
+    event_loop_builder
+}
+```

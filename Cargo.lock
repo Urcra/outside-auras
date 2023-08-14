@@ -1913,6 +1913,7 @@ dependencies = [
  "eframe",
  "env_logger",
  "image",
+ "lazy_static",
  "notify",
  "parking_lot",
 ]
