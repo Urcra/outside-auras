@@ -4,6 +4,18 @@ Proof of concept for wow overlays using live log data
 
 ![Showcaseimg](https://i.imgur.com/wEOlkJp.png)
 
+## How do I run it?
+
+Disclaimer this may be against the TOS
+
+1. Download the latest version from https://github.com/Urcra/outside-auras/releases/tag/1.0
+2. Extract the archive
+3. Double click the .exe file
+4. Start combatlogging ingame via `/combatlog`
+5. Enter the path of the most recent combatlog file into the main window
+6. Click start aura, the main window will dissapear, and the auras will appear when the logs trigger them
+
+
 ## Why
 
 Personally I have known this was possible for a long time, but actually thought the delay would have been too bad. But after seeing that WarcraftLogs was going to do an overlay using the logdata(https://twitter.com/WarcraftLogs/status/1686485331346948098). And testing what the delay actually was in a raid group. I felt I needed to shed some light on the potential road we are heading towards
@@ -30,20 +42,6 @@ There are also some ways of reducing the delay which I won't get in to here. But
 ## How can it be fixed
 Only flush the logs to the disk after the encounter is over
 
-## How do I run it?
-
-Please don't use it for any difficult content only for verifying that it works, and that it should not be allowed, there is a replay feature you can use if you want to see how it would have looked in your own kill.
-
-1. Download the latest version from https://github.com/Urcra/outside-auras/releases/tag/1.0
-2. Extract the archive
-3. Double click the .exe file
-4. Start combatlogging ingame via `/combatlog`
-5. Enter the path of the most recent combatlog file into the main window
-6. Click start aura, the main window will dissapear, and the auras will appear when the logs trigger them
-
-```
-outside-auras.exe PATH_TO_LOG replay
-```
 
 ## Why even release it?
 
