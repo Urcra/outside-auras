@@ -3,6 +3,7 @@ use eframe::{
     epaint::{Color32, FontId, TextureHandle},
 };
 
+pub mod delay_display;
 pub mod list_aura;
 pub mod nelth_aura;
 

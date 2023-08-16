@@ -1,12 +1,13 @@
 use std::{sync::Arc, thread};
 
-use crossbeam::channel::Receiver;
 use eframe::{
     egui::{self},
     emath::Align2,
     epaint::{Color32, FontId, TextureHandle, Vec2},
 };
+use ipc_channel::ipc::{self, IpcOneShotServer, IpcReceiver, IpcSender};
 use parking_lot::Mutex;
+use procspawn::JoinHandle;
 
 use crate::utils::load_image_from_path;
 
@@ -97,7 +98,7 @@ impl ListAura for NelthAura {
 impl NelthAura {
     pub fn new(
         cc: &eframe::CreationContext<'_>,
-        log_receiver: Receiver<String>,
+        log_receiver: IpcReceiver<String>,
         player_list: Vec<String>,
     ) -> Self {
         let ctx = cc.egui_ctx.clone();
@@ -111,7 +112,7 @@ impl NelthAura {
         thread::spawn(move || loop {
             match log_receiver.recv() {
                 Ok(s) => Self::handle_log_line(&state_clone, &s),
-                Err(e) => println!("Error {e}"),
+                Err(e) => println!("Error receiving log: {e}"),
             }
         });
 
@@ -122,29 +123,38 @@ impl NelthAura {
         }
     }
 
-    pub fn spawn(log_receiver: Receiver<String>, player_list: String) {
-        let options = eframe::NativeOptions {
-            // 527.0, 454.0
-            initial_window_size: Some(egui::vec2(127.0, 154.0)),
-            decorated: false,
-            always_on_top: true,
-            mouse_passthrough: false,
-            transparent: false,
-            ..Default::default()
-        };
-        let mut player_list_fixed = Vec::new();
-        for player in player_list.lines() {
-            let player = player.trim().to_string();
-            if !player.is_empty() {
-                player_list_fixed.push(player);
+    //TODO: make this more generic
+    pub fn spawn(player_list: String) -> (JoinHandle<()>, IpcSender<String>) {
+        let (server, server_name) = IpcOneShotServer::new().unwrap();
+        let handle = procspawn::spawn((server_name, player_list), |(server_name, player_list)| {
+            let (tx, log_receiver) = ipc::channel::<String>().unwrap();
+            let tx0 = IpcSender::connect(server_name).unwrap();
+            tx0.send(tx).unwrap();
+            let options = eframe::NativeOptions {
+                // 527.0, 454.0
+                initial_window_size: Some(egui::vec2(127.0, 154.0)),
+                decorated: false,
+                always_on_top: true,
+                mouse_passthrough: false,
+                transparent: false,
+                ..Default::default()
+            };
+            let mut player_list_fixed = Vec::new();
+            for player in player_list.lines() {
+                let player = player.trim().to_string();
+                if !player.is_empty() {
+                    player_list_fixed.push(player);
+                }
             }
-        }
-        eframe::run_native(
-            "Outside Auras",
-            options,
-            Box::new(|cc| Box::new(NelthAura::new(cc, log_receiver, player_list_fixed))),
-        )
-        .unwrap();
+            eframe::run_native(
+                "Volcanic hearts",
+                options,
+                Box::new(|cc| Box::new(NelthAura::new(cc, log_receiver, player_list_fixed))),
+            )
+            .unwrap();
+        });
+        let (_, log_sender): (_, IpcSender<String>) = server.accept().unwrap();
+        (handle, log_sender)
     }
 
     fn handle_log_line(state: &Arc<Mutex<NelthSharedState>>, line: &str) {
@@ -157,7 +167,6 @@ impl NelthAura {
 
         match event_type {
             "ENCOUNTER_START" | "ENCOUNTER_END" => {
-                println!("Hey");
                 state.lock().volanic_hearts.clear();
             }
             "SPELL_AURA_APPLIED" => {
@@ -172,7 +181,6 @@ impl NelthAura {
                 let _ = csv.next().unwrap();
                 let spell_name = csv.next().unwrap();
                 if spell_name == "\"Volcanic Heartbeat\"" {
-                    println!("Heyo");
                     let name = target_name.split_once("-").unwrap().0[1..].to_string();
                     state.lock().volanic_hearts.push(name);
                     state.lock().ctx.request_repaint();
@@ -190,7 +198,6 @@ impl NelthAura {
                 let _ = csv.next().unwrap();
                 let spell_name = csv.next().unwrap();
                 if spell_name == "\"Volcanic Heartbeat\"" {
-                    println!("Heya");
                     let name = &target_name.split_once("-").unwrap().0[1..].to_string();
                     state.lock().volanic_hearts.retain(|e| e != name);
                     state.lock().ctx.request_repaint();

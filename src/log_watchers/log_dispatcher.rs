@@ -1,16 +1,17 @@
 use std::{sync::Arc, thread};
 
-use crossbeam::channel::{unbounded, Receiver, Sender};
+use crossbeam::channel::{unbounded, Receiver};
+use ipc_channel::ipc::IpcSender;
 use parking_lot::Mutex;
 
 use super::{file_replayer, file_watcher};
 
 pub struct LogDispatcher {
-    _aura_channels: Arc<Mutex<Vec<Sender<String>>>>,
+    _aura_channels: Arc<Mutex<Vec<IpcSender<String>>>>,
 }
 
 impl LogDispatcher {
-    pub fn new(path: String, replay: bool, aura_channels: Vec<Sender<String>>) -> Self {
+    pub fn new(path: String, replay: bool, aura_channels: Vec<IpcSender<String>>) -> Self {
         let (tx, rx) = unbounded();
         let _aura_channels = Arc::new(Mutex::new(aura_channels));
         let aura_channels_clone = _aura_channels.clone();
@@ -29,7 +30,7 @@ impl LogDispatcher {
     }
 
     fn dispatch_logs(
-        aura_channels: Arc<Mutex<Vec<Sender<String>>>>,
+        aura_channels: Arc<Mutex<Vec<IpcSender<String>>>>,
         log_receiver: Receiver<String>,
     ) {
         loop {
@@ -39,7 +40,7 @@ impl LogDispatcher {
                         aura_channel.send(log_line.clone()).unwrap();
                     }
                 }
-                Err(e) => println!("Error: {e}"),
+                Err(e) => println!("Error dispatching log: {e}"),
             }
         }
     }
