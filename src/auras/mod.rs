@@ -5,6 +5,7 @@ use eframe::{
 
 pub mod delay_display;
 pub mod list_aura;
+pub mod lua_aura;
 pub mod nelth_aura;
 
 pub struct AuraItem<'a> {

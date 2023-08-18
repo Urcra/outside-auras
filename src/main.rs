@@ -1,6 +1,8 @@
-#![windows_subsystem = "windows"]
+//#![windows_subsystem = "windows"]
 
-use auras::{delay_display, nelth_aura::NelthAura};
+use std::{fs, thread, time::Duration};
+
+use auras::{delay_display, lua_aura, nelth_aura::NelthAura};
 use log_watchers::LogDispatcher;
 mod auras;
 mod log_watchers;
@@ -18,8 +20,15 @@ fn main() {
     //let (nelth_channel_tx, nelth_channel_rx) = unbounded();
     let (_nelth_handle, nelth_tx) = NelthAura::spawn(player_list);
     let (_delay_handle, delay_tx) = delay_display::Aura::spawn();
-    let _log_dispatcher = LogDispatcher::new(path, replay, vec![nelth_tx, delay_tx]);
+    let mut aura_channels = vec![nelth_tx, delay_tx];
+    if let Ok(script) = fs::read_to_string("lua-auras/aura.lua") {
+        let (_lua_handle, lua_tx) = lua_aura::Aura::spawn(script);
+        aura_channels.push(lua_tx);
+    }
+    let _log_dispatcher = LogDispatcher::new(path, replay, aura_channels);
 
     // Keep alive, until we get a proper menu that handles it instead
-    loop {}
+    loop {
+        thread::sleep(Duration::from_secs(10));
+    }
 }
