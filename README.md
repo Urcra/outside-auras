@@ -4,6 +4,8 @@ Proof of concept for wow overlays using live log data
 
 ![Showcaseimg](https://i.imgur.com/wEOlkJp.png)
 
+## ARCHIVE NOTICE: Blizzard has announced this will be fixed next patch, this the repo will be archived, note it's most likely against the TOS to use this in an actual progression fight
+
 ## How do I run it?
 
 Disclaimer this may be against the TOS
